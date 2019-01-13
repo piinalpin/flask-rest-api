@@ -70,8 +70,7 @@ python run.py
 ```
 9. Access `localhost:5000` according port that created in `run.py`
 
-![Sample 1](https://raw.githubusercontent.com/piinalpin/flask-crud/master/Image-1.PNG)
-gambar1
+![Sample 1](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/1.PNG)
 
 10. Configure the database with SQLAlchemy, you should create directory `db/` inside `app/` directory and modify `__init__.py` and it will be created `flask-api.db` inside `app` directory
 ```
@@ -148,7 +147,6 @@ flask db init
 flask db migrate
 flask db upgrade
 ```
-gambar2
 13. The structure of database should like as follows
 
 Mahasiswa  |
@@ -194,7 +192,8 @@ def mahasiswa():
         response.status_code = HttpStatus.OK
     return response
 ```
-gambar
+![Sample 2](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/2.PNG)
+
 18. How to insert data to database with Http Request POST? Okay, lets do it with create function input data from request, add this code to function mahasiswa as `def mahasiswa()`
 ```python
     elif request.method == 'POST':
@@ -214,7 +213,12 @@ gambar
             response = jsonify(construct)
             response.status_code = HttpStatus.BAD_REQUEST
 ```
-gambar
+![Sample 3](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/3.PNG)
+
+![Sample 4](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/4.PNG)
+
+![Sample 5](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/5.PNG)
+
 19. Then create function to filter or get data by id for which will use to PUT and DELETE request, that mean this function can update and delete data from database
 ```python
 @app.route('/api/v1/mahasiswa/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -264,7 +268,16 @@ def mahasiswaId(id):
             response.status_code = HttpStatus.BAD_REQUEST
     return response
 ```
-gambar
+![Sample 6](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/6.PNG)
+
+![Sample 7](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/7.PNG)
+
+![Sample 8](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/8.PNG)
+
+![Sample 9](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/9.PNG)
+
+![Sample 10](https://raw.githubusercontent.com/piinalpin/flask-rest-api/master/10.PNG)
+
 ### After change structure of flask project
 ```
 * flask-rest-api/
