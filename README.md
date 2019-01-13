@@ -49,7 +49,7 @@ app.run(debug=True, host='127.0.0.1', port=5000)
 ```
 5. Create `controller.py` according the abpove structure `flask-rest-api/app/module/`
 ```python
-from flask import request
+from flask import request, jsonify
 from app import app
 
 @app.route('/')
@@ -80,7 +80,6 @@ gambar1
   |    |--- db/
   |    |--- module/
   |    |    |--- __init__.py
-  |    |    |--- const.py
   |    |    |--- controller.py
   |    |    |--- models.py
   |    |--- __init__.py
@@ -143,7 +142,14 @@ class Mahasiswa(db.Model):
         db.session.delete(self)
         db.session.commit()
 ```
-15. The structure of database should like as follows
+12. Run migration with flask-migrate, type in terminal as below
+```
+flask db init
+flask db migrate
+flask db upgrade
+```
+gambar2
+13. The structure of database should like as follows
 
 Mahasiswa  |
 ------------- |
@@ -151,219 +157,110 @@ Mahasiswa  |
 `name (String, NOT NULL)`  |
 `nim (String, NOT NULL)`  |
 
-16. Stop app if that is still running, press `CTRL+C` key to quit and type `python` to go to python terminal
-
-![Sample 5](https://raw.githubusercontent.com/piinalpin/flask-crud/master/Image-5.PNG)
-
-17. Type command bellow to create database file `flaskcrud.db`
+14. Create constant class to define constant variable for example variable to HTTP status, you should create file `const.py` inside `app/module/` according the above structure
+```python
+class HttpStatus:
+    OK = 200
+    CREATED = 201
+    NOT_FOUND = 404
+    BAD_REQUEST = 400
 ```
->>> from app.module.models import db
->>> db.create_all()
->>> exit()
+15. The structure project will be look as follows
 ```
-18. The structure project will be look as follows
-```
-* flask-project/
+* flask-rest-api/
   |--- app/
+  |    |--- db/
   |    |--- module/
   |    |    |--- __init__.py
+  |    |    |--- const.py
   |    |    |--- controller.py
   |    |    |--- models.py
-  |    |--- templates/ (html file)
   |    |--- __init__.py
-  |    |--- flaskcrud.db
   |--- venv/
   |--- run.py
 ```
-19. Import database from `models.py` add this line `from .models import db, Mahasiswa` to the `controller.py`, it's mean import from `models.py` for `db` variable and class `Mahasiswa`
-20. Modify `controller.py` to create function to storing data of `Mahasiswa` then save to the database that is already made and retrieving data with `Mahasiswa.query.all()` it will be retrieving all data from database then made with `try` and `except` to handling an error
+16. Import database from `models.py` and constant class `const.py` add this line `from .models import *` and `from .const import *` to the `controller.py`, it's mean import all class, function or variables from `models.py` and `const.py`
+17. Create function to get data from Http Request GET to retrieve all data from database with endpoint `/mahasiswa`
 ```python
-@app.route('/', methods=['GET','POST'])
-def index():
-    if request.method == 'POST':
-        name = request.form['name']
-        nim = request.form['nim']
+@app.route('/api/v1/mahasiswa', methods=['GET', 'POST'])
+def mahasiswa():
+    if request.method == 'GET':
+        construct = {
+            'error': [],
+            'success': True,
+            'mahasiswa': Mahasiswa.getAll()
+        }
+        response = jsonify(construct)
+        response.status_code = HttpStatus.OK
+    return response
+```
+18. How to insert data to database with Http Request POST? Okay, lets do it with create function input data from request, add this code to function mahasiswa as `def mahasiswa()`
+```python
+    elif request.method == 'POST':
+        nim = None if request.form['nim'] is "" else request.form['nim']
+        name = None if request.form['name'] is "" else request.form['name']
+        construct = {}
         try:
             mhs = Mahasiswa(nim=nim, name=name)
-            db.session.add(mhs)
-            db.session.commit()
+            mhs.save()
+            construct['success'] = True
+            construct['message'] = 'Data saved'
+            response = jsonify(construct)
+            response.status_code = HttpStatus.CREATED
         except Exception as e:
-            print("Failed to add data.")
-            print(e)
-    listMhs = Mahasiswa.query.all()
-    print(listMhs)
-    return render_template("home.html", data=enumerate(listMhs,1))
+            construct['success'] = False
+            construct['error'] = str(e)
+            response = jsonify(construct)
+            response.status_code = HttpStatus.BAD_REQUEST
 ```
-21. The statement of `data=enumerate(listMhs,1)` mean data will show from 1 and so on, not from the id
-
-22. Then modify `home.html` file to show that data is already inputed on database from input form
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flask Crud</title>
-</head>
-<body>
-<h3>Form Add Mahasiswa</h3>
-<form action="/" method="POST">
-    <table>
-        <tr>
-            <td>Nama Lengkap</td>
-            <td>:</td>
-            <td><input type="text" name="name"></td>
-        </tr>
-        <tr>
-            <td>Nomor Induk Mahasiswa</td>
-            <td>:</td>
-            <td><input type="text" name="nim"></td>
-        </tr>
-        <tr>
-            <td><button type="submit">Save</button></td>
-        </tr>
-    </table>
-</form>
-
-<h3>Data Mahasiswa</h3>
-<table border="1">
-    <tr>
-        <th>No</th>
-        <th>Nomor Induk Mahasiswa</th>
-        <th>Nama</th>
-    </tr>
-    {% for no, x in data %}
-        <tr>
-            <td>{{ no }}</td>
-            <td>{{ x.nim }}</td>
-            <td>{{ x.name }}</td>
-        </tr>
-    {% endfor %}
-</table>
-</body>
-</html>
-```
-![Sample 6](https://raw.githubusercontent.com/piinalpin/flask-crud/master/Image-6.PNG)
-
-23. Then modify `home.html` to add action button that will __UPDATE__ and __DELETE__ data from database using id from collection. On `href="form-update/{{ x.id }}"` it will be route to `/form-update/1` to GET parameters.
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flask Crud</title>
-</head>
-<body>
-<h3>Form Add Mahasiswa</h3>
-<form action="/" method="POST">
-    <table>
-        <tr>
-            <td>Nama Lengkap</td>
-            <td>:</td>
-            <td><input type="text" name="name"></td>
-        </tr>
-        <tr>
-            <td>Nomor Induk Mahasiswa</td>
-            <td>:</td>
-            <td><input type="text" name="nim"></td>
-        </tr>
-        <tr>
-            <td><button type="submit">Save</button></td>
-        </tr>
-    </table>
-</form>
-
-<h3>Data Mahasiswa</h3>
-<table border="1">
-    <tr>
-        <th>No</th>
-        <th>Nomor Induk Mahasiswa</th>
-        <th>Nama</th>
-        <th>Action</th>
-    </tr>
-    {% for no, x in data %}
-        <tr>
-            <td>{{ no }}</td>
-            <td>{{ x.nim }}</td>
-            <td>{{ x.name }}</td>
-            <td><a href="form-update/{{ x.id }}">Edit</a> | <a href="delete/{{ x.id }}">Delete</a></td>
-        </tr>
-    {% endfor %}
-</table>
-</body>
-</html>
-```
-![Sample 7](https://raw.githubusercontent.com/piinalpin/flask-crud/master/Image-7.PNG)
-
-24. Then create `form-update.html` for the input form on update
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flask Crud</title>
-</head>
-<body>
-<h3>Form Update Mahasiswa</h3>
-<form action="/form-update" method="POST">
-    <table>
-        <tr>
-            <td>Nama Lengkap</td>
-            <td>:</td>
-            <td><input type="text" name="name" value="{{ data.name }}"></td>
-            <input type="hidden" name="id" value="{{ data.id }}">
-        </tr>
-        <tr>
-            <td>Nomor Induk Mahasiswa</td>
-            <td>:</td>
-            <td><input type="text" name="nim" value="{{ data.nim }}"></td>
-        </tr>
-        <tr>
-            <td><button type="submit">Update</button></td>
-        </tr>
-    </table>
-</form>
-</body>
-</html>
-```
-![Sample 8](https://raw.githubusercontent.com/piinalpin/flask-crud/master/Image-8.PNG)
-
-25. Then create function to __UPDATE__ data from the collections in `controller.py`, on __UPDATE__ you should create two function to load or render form input and update to database from method __POST__ on form input using `Mahasiswa.query.filter_by(id=id).first()` to find data filter by id and `db.session.commit()` to save the data
+19. Then create function to filter or get data by id for which will use to PUT and DELETE request, that mean this function can update and delete data from database
 ```python
-@app.route('/form-update/<int:id>')
-def updateForm(id):
+@app.route('/api/v1/mahasiswa/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def mahasiswaId(id):
     mhs = Mahasiswa.query.filter_by(id=id).first()
-    return render_template("form-update.html", data=mhs)
-
-@app.route('/form-update', methods=['POST'])
-def update():
-    if request.method == 'POST':
-        id = request.form['id']
-        name = request.form['name']
-        nim = request.form['nim']
+    if request.method == 'GET':
+        construct = {
+            'error': [],
+            'success': True,
+            'mahasiswa': {
+                'id': mhs.id,
+                'nim': mhs.nim,
+                'name': mhs.name
+            }
+        }
+        response = jsonify(construct)
+        response.status_code = HttpStatus.OK
+    elif request.method == 'PUT':
+        nim = None if request.form['nim'] is "" else request.form['nim']
+        name = None if request.form['name'] is "" else request.form['name']
+        construct = {}
         try:
-            mhs = Mahasiswa.query.filter_by(id=id).first()
-            mhs.name = name
             mhs.nim = nim
+            mhs.name = name
             db.session.commit()
+            construct['success'] = True
+            construct['message'] = 'Data saved'
+            response = jsonify(construct)
+            response.status_code = HttpStatus.OK
         except Exception as e:
-            print("Failed to update data")
-            print(e)
-        return redirect("/")
-```
-26. And modify import flask on top line change to `from flask import render_template, request, redirect`
-
-27. Then create the __DELETE__ function to delete data from the collections in `controller.py` using filter by id and `db.session.delete(mhs)` function
-```python
-@app.route('/delete/<int:id>')
-def delete(id):
-    try:
-        mhs = Mahasiswa.query.filter_by(id=id).first()
-        db.session.delete(mhs)
-        db.session.commit()
-    except Exception as e:
-        print("Failed delete mahasiswa")
-        print(e)
-    return redirect("/")
+            construct['success'] = False
+            construct['error'] = str(e)
+            response = jsonify(construct)
+            response.status_code = HttpStatus.BAD_REQUEST
+    elif request.method == 'DELETE':
+        construct = {}
+        try:
+            mhs.delete()
+            construct['success'] = True
+            construct['message'] = 'Data has been delete.'
+            response = jsonify(construct)
+            response.status_code = HttpStatus.OK
+        except Exception as e:
+            construct['success'] = False
+            construct['error'] = str(e)
+            response = jsonify(construct)
+            response.status_code = HttpStatus.BAD_REQUEST
+    return response
 ```
 
 ### After change structure of flask project
