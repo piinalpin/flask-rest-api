@@ -74,6 +74,19 @@ python run.py
 gambar1
 
 10. Configure the database with SQLAlchemy, you should create directory `db/` inside `app/` directory and modify `__init__.py` and it will be created `flask-api.db` inside `app` directory
+```
+* flask-rest-api/
+  |--- app/
+  |    |--- db/
+  |    |--- module/
+  |    |    |--- __init__.py
+  |    |    |--- const.py
+  |    |    |--- controller.py
+  |    |    |--- models.py
+  |    |--- __init__.py
+  |--- venv/
+  |--- run.py
+```
 ```python
 import os
 from flask import Flask
