@@ -24,7 +24,7 @@ Make sure you have installed Python 3 on your device
   |--- run.py
 ```
 
-### Step to create flask project
+### Step to create flask rest api
 
 A step by step series of examples that tell you how to get a development env running
 
@@ -32,7 +32,7 @@ A step by step series of examples that tell you how to get a development env run
 ```
 pip install virtualenv
 ```
-2. Create virtual environment and activate inside your flask-project directory according the above structure
+2. Create virtual environment and activate inside your flask-rest-api directory according the above structure
 ```
 virtualenv venv
 > On windows -> venv\Scripts\activate
