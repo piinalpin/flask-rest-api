@@ -3,8 +3,10 @@ from app import app
 from .models import *
 from .const import HttpStatus
 
-@app.route('/')
+@app.route('/api/v1', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        print("<Request: {}>".format(request.json))
     return "<h1>Welcome to Flask Restful API</h1><p>Created By: Alvinditya Saputra</p>"
 
 @app.route('/api/v1/mahasiswa', methods=['GET', 'POST'])
@@ -19,8 +21,8 @@ def mahasiswa():
         response.status_code = HttpStatus.OK
 
     elif request.method == 'POST':
-        nim = None if request.form['nim'] is "" else request.form['nim']
-        name = None if request.form['name'] is "" else request.form['name']
+        nim = None if request.json['body']['nim'] is "" else request.json['body']['nim']
+        name = None if request.json['body']['name'] is "" else request.json['body']['name']
         construct = {}
         try:
             mhs = Mahasiswa(nim=nim, name=name)
@@ -29,6 +31,7 @@ def mahasiswa():
             construct['message'] = 'Data saved'
             response = jsonify(construct)
             response.status_code = HttpStatus.CREATED
+            print("<Nama: {}, Nim: {}>".format(name, nim))
         except Exception as e:
             construct['success'] = False
             construct['error'] = str(e)
