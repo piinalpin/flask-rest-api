@@ -55,8 +55,8 @@ def mahasiswaId(id):
         response = jsonify(construct)
         response.status_code = HttpStatus.OK
     elif request.method == 'PUT':
-        nim = None if request.form['nim'] is "" else request.form['nim']
-        name = None if request.form['name'] is "" else request.form['name']
+        nim = None if request.json['body']['nim'] is "" else request.json['body']['nim']
+        name = None if request.json['body']['name'] is "" else request.json['body']['name']
         construct = {}
         try:
             mhs.nim = nim
