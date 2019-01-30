@@ -1,2 +1,2 @@
 from app import app
-app.run(debug=True, host='localhost', port=5000)
+app.run(debug=True, host='https://flask-rest-api-maverick.herokuapp.com/')
