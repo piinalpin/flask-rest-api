@@ -1,4 +1,2 @@
 web: gunicorn run:app
-heroku run: flask db init
-heroku run: flask db migrate
-heroku run: flask db upgrade
+heroku run: flask db init && flask db migrate && flask db upgrade
