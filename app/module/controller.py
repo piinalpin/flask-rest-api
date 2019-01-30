@@ -3,7 +3,7 @@ from app import app
 from .models import *
 from .const import HttpStatus
 
-@app.route('/api/v1', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         print("<Request: {}>".format(request.json))
