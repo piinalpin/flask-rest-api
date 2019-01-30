@@ -1,9 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from app import app
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+from app import db
 
 class Mahasiswa(db.Model):
     __tablename__ = 'mahasiswa' #Must be defined the table name

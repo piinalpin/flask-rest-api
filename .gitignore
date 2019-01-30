@@ -5,4 +5,3 @@ __pycache__/
 venv/
 .idea
 migrations/
-app/db/flask-api.db
